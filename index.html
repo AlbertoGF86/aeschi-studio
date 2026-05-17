@@ -35,11 +35,10 @@
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
-      cursor: none;
     }
 
-    a { color: inherit; text-decoration: none; cursor: none; }
-    button { cursor: none; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; }
 
     /* ── PRELOADER ── */
     #preloader {
@@ -68,44 +67,7 @@
       to { opacity: 1; transform: none; }
     }
 
-    /* ── CURSOR ── */
-    #cursor {
-      position: fixed; z-index: 9999;
-      pointer-events: none;
-      top: 0; left: 0;
-      transform: translate(-50%, -50%);
-    }
-    .cursor-ring {
-      width: 36px; height: 36px;
-      border: 0.5px solid rgba(200,184,154,0.5);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      transition: width 0.4s var(--ease), height 0.4s var(--ease), background 0.3s, border-color 0.3s;
-    }
-    .cursor-dot {
-      width: 4px; height: 4px;
-      background: var(--accent); border-radius: 50%;
-      transition: opacity 0.3s, transform 0.3s;
-    }
-    .cursor-label {
-      font-family: var(--mono);
-      font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--accent); opacity: 0;
-      position: absolute;
-      transition: opacity 0.3s;
-      white-space: nowrap;
-    }
-    body.cursor-play .cursor-ring {
-      width: 72px; height: 72px;
-      background: rgba(200,184,154,0.08);
-      border-color: rgba(200,184,154,0.7);
-    }
-    body.cursor-play .cursor-dot { opacity: 0; transform: scale(0); }
-    body.cursor-play .cursor-label { opacity: 1; }
-    body.cursor-link .cursor-ring {
-      width: 48px; height: 48px;
-      background: rgba(200,184,154,0.06);
-    }
+
 
     /* ── NAV ── */
     nav {
@@ -134,19 +96,16 @@
     }
     .nav-cta:hover { opacity: 1; }
 
-    /* ── HERO NATIVO ── */
+    /* ── HERO ── */
     .hero {
       position: relative; height: 100vh; min-height: 600px;
       overflow: hidden; border-bottom: 0.5px solid var(--border);
     }
-    .hero-video-wrap {
-      position: absolute; inset: 0; z-index: 0; background: #000;
-    }
-    .hero-video-wrap video {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
+    .hero-image {
+      position: absolute; inset: 0;
       width: 100%; height: 100%;
-      object-fit: cover;
+      object-fit: cover; object-position: center;
+      z-index: 0;
     }
     .hero-overlay {
       position: absolute; inset: 0; z-index: 1;
@@ -246,14 +205,14 @@
     .service-name { font-size: 15px; font-weight: 400; margin-bottom: 6px; }
     .service-desc { font-size: 13px; color: var(--text2); line-height: 1.6; max-width: 220px; font-weight: 300; }
 
-    /* ── PORTFOLIO NATIVO ── */
+    /* ── PORTFOLIO ── */
     .video-featured {
       position: relative; width: 100%; aspect-ratio: 16/9;
       background: #000; overflow: hidden; margin-bottom: 2rem;
     }
     .video-featured video {
       position: absolute; inset: 0; width: 100%; height: 100%;
-      object-fit: cover; border: none;
+      object-fit: cover; border: none; display: block;
     }
     .video-caption {
       display: flex; justify-content: space-between; align-items: flex-end;
@@ -340,7 +299,6 @@
       font-weight: 300;
       outline: none;
       transition: border-color 0.3s var(--ease);
-      cursor: none;
     }
     .aesthetic-input:focus {
       border-color: var(--accent);
@@ -463,8 +421,6 @@
 
     /* ── MOBILE ── */
     @media (max-width: 768px) {
-      body { cursor: auto; }
-      #cursor { display: none; }
       nav { padding: 1rem 1.5rem; }
       .nav-links { display: none; }
       .hero-content { left: 1.5rem; bottom: 3rem; }
@@ -491,12 +447,6 @@
     <div class="preloader-bar" id="preloaderBar"></div>
   </div>
 
-  <div id="cursor">
-    <div class="cursor-ring">
-      <div class="cursor-dot"></div>
-      <span class="cursor-label">Play</span>
-    </div>
-  </div>
 
   <nav>
     <div class="nav-logo">Aeschi Studio.</div>
@@ -585,10 +535,9 @@
 
   <section id="trabajo" class="fade-in">
     <p class="section-label">Trabajo</p>
-    <div class="video-featured" data-play>
-      <video controls playsinline>
+    <div class="video-featured">
+      <video id="portfolioVideo" loop muted playsinline preload="metadata">
         <source src="1.mp4" type="video/mp4">
-        Tu navegador no soporta video HTML5.
       </video>
     </div>
     <div class="video-caption">
@@ -764,26 +713,17 @@
       document.body.style.overflow = '';
     }, 1700);
 
-    /* ── CURSOR ── */
-    const cursor = document.getElementById('cursor');
-
-    document.addEventListener('mousemove', e => {
-      cursor.style.left = e.clientX + 'px';
-      cursor.style.top = e.clientY + 'px';
-    });
-
-    document.querySelectorAll('[data-play]').forEach(el => {
-      el.addEventListener('mouseenter', () => document.body.classList.add('cursor-play'));
-      el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-play'));
-    });
-
-    document.querySelectorAll('a, button, input, textarea, select').forEach(el => {
-      el.addEventListener('mouseenter', () => {
-        if (!document.body.classList.contains('cursor-play'))
-          document.body.classList.add('cursor-link');
-      });
-      el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-link'));
-    });
+    /* ── AUTOPLAY VIDEO EN SCROLL ── */
+    const portfolioVideo = document.getElementById('portfolioVideo');
+    if (portfolioVideo) {
+      const videoObserver = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) { portfolioVideo.play(); }
+          else { portfolioVideo.pause(); }
+        });
+      }, { threshold: 0.3 });
+      videoObserver.observe(portfolioVideo);
+    }
 
     /* ── MANIFESTO WORD REVEAL ── */
     const manifestoEl = document.getElementById('manifesto');
