@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aeschi Studio — Producción Audiovisual</title>
+  <meta name="description" content="Estudio audiovisual para marcas y eventos. Film de marca, cobertura de eventos y contenido digital premium." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0c0c0b;
+      --bg2: #141413;
+      --text: #f0ede6;
+      --text2: #8a8880;
+      --text3: #4a4845;
+      --border: rgba(240,237,230,0.08);
+      --border2: rgba(240,237,230,0.14);
+      --accent: #c8b89a;
+      --font: 'DM Sans', sans-serif;
+      --mono: 'DM Mono', monospace;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    a { color: inherit; text-decoration: none; cursor: none; }
+    button { cursor: none; }
+
+    /* ── PRELOADER ── */
+    #preloader {
+      position: fixed; inset: 0; z-index: 1000;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.6s var(--ease), visibility 0.6s;
+    }
+    #preloader.hidden { opacity: 0; visibility: hidden; }
+    .preloader-logo {
+      font-family: var(--mono);
+      font-size: 13px; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--text3);
+    }
+    .preloader-logo span {
+      display: inline-block;
+      opacity: 0; transform: translateY(100%);
+      animation: letterUp 0.05s var(--ease) forwards;
+    }
+    .preloader-bar {
+      position: absolute; bottom: 0; left: 0;
+      height: 1px; background: var(--accent);
+      width: 0%; transition: width 1.2s var(--ease);
+    }
+    @keyframes letterUp {
+      to { opacity: 1; transform: none; }
+    }
+
+    /* ── CURSOR ── */
+    #cursor {
+      position: fixed; z-index: 9999;
+      pointer-events: none;
+      top: 0; left: 0;
+      transform: translate(-50%, -50%);
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 0.5px solid rgba(200,184,154,0.5);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: width 0.4s var(--ease), height 0.4s var(--ease), background 0.3s, border-color 0.3s;
+    }
+    .cursor-dot {
+      width: 4px; height: 4px;
+      background: var(--accent); border-radius: 50%;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .cursor-label {
+      font-family: var(--mono);
+      font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--accent); opacity: 0;
+      position: absolute;
+      transition: opacity 0.3s;
+      white-space: nowrap;
+    }
+    body.cursor-play .cursor-ring {
+      width: 72px; height: 72px;
+      background: rgba(200,184,154,0.08);
+      border-color: rgba(200,184,154,0.7);
+    }
+    body.cursor-play .cursor-dot { opacity: 0; transform: scale(0); }
+    body.cursor-play .cursor-label { opacity: 1; }
+    body.cursor-link .cursor-ring {
+      width: 48px; height: 48px;
+      background: rgba(200,184,154,0.06);
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.25rem 3rem;
+      border-bottom: 0.5px solid var(--border);
+      background: rgba(12,12,11,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .nav-logo {
+      font-family: var(--mono);
+      font-size: 13px; font-weight: 400;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--text);
+    }
+    .nav-links { display: flex; gap: 2.5rem; }
+    .nav-links a { font-size: 12px; letter-spacing: 0.08em; color: var(--text2); transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      font-family: var(--mono);
+      font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--accent); border: 0.5px solid var(--accent);
+      padding: 7px 18px; opacity: 0.85; transition: opacity 0.2s;
+    }
+    .nav-cta:hover { opacity: 1; }
+
+    /* ── HERO NATIVO ── */
+    .hero {
+      position: relative; height: 100vh; min-height: 600px;
+      overflow: hidden; border-bottom: 0.5px solid var(--border);
+    }
+    .hero-video-wrap {
+      position: absolute; inset: 0; z-index: 0; background: #000;
+    }
+    .hero-video-wrap video {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .hero-overlay {
+      position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(
+        to bottom,
+        rgba(12,12,11,0.35) 0%,
+        rgba(12,12,11,0.1) 40%,
+        rgba(12,12,11,0.65) 80%,
+        rgba(12,12,11,0.96) 100%
+      );
+    }
+    .hero-content {
+      position: absolute; bottom: 5rem; left: 3rem;
+      z-index: 2; max-width: 800px;
+    }
+    .hero-eyebrow {
+      font-family: var(--mono);
+      font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: rgba(240,237,230,0.5); margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .hero-eyebrow::before {
+      content: ''; display: block; width: 24px; height: 0.5px;
+      background: rgba(240,237,230,0.3);
+    }
+    h1 {
+      font-size: clamp(44px, 7vw, 80px); font-weight: 300;
+      line-height: 1.05; letter-spacing: -0.04em; margin-bottom: 2.5rem;
+    }
+    h1 em { font-style: normal; color: rgba(240,237,230,0.45); }
+    h1 .accent { color: var(--accent); }
+    .hero-sub {
+      font-size: 16px; font-weight: 300;
+      color: rgba(240,237,230,0.55); line-height: 1.7;
+      max-width: 480px; margin-bottom: 3rem;
+    }
+    .btn-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn-primary {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      background: var(--accent); color: var(--bg);
+      border: none; padding: 14px 32px;
+      transition: opacity 0.2s; display: inline-block;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-ghost {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      background: transparent; color: rgba(240,237,230,0.6);
+      border: 0.5px solid rgba(240,237,230,0.2);
+      padding: 14px 32px; transition: color 0.2s, border-color 0.2s;
+      display: inline-block;
+    }
+    .btn-ghost:hover { color: var(--text); border-color: var(--border2); }
+
+    /* ── TICKER ── */
+    .ticker-wrap { border-bottom: 0.5px solid var(--border); padding: 1rem 0; overflow: hidden; }
+    .ticker { display: flex; gap: 3rem; animation: ticker 28s linear infinite; white-space: nowrap; }
+    .ticker-item { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--text3); flex-shrink: 0; }
+    .ticker-item span { color: var(--text2); }
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ── SECTIONS ── */
+    section { padding: 6rem 3rem; border-bottom: 0.5px solid var(--border); }
+    .section-label {
+      font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--text3); margin-bottom: 3rem;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 0.5px; background: var(--border); }
+
+    /* ── MANIFESTO ── */
+    .manifesto { background: var(--bg); }
+    .manifesto-text {
+      font-size: clamp(26px, 4.5vw, 50px); font-weight: 300;
+      line-height: 1.3; letter-spacing: -0.03em;
+    }
+    .manifesto-text .word {
+      display: inline-block; color: var(--text3);
+      transition: color 0.4s var(--ease); margin-right: 0.25em;
+    }
+    .manifesto-text .word.lit { color: var(--text); }
+    .manifesto-text .word.accent-word.lit { color: var(--accent); }
+
+    /* ── SERVICES ── */
+    .services-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+    .service-item {
+      padding: 2rem 0; border-top: 0.5px solid var(--border);
+      display: flex; justify-content: space-between;
+      transition: padding-left 0.3s var(--ease);
+    }
+    .service-item:nth-child(odd) { padding-right: 3rem; border-right: 0.5px solid var(--border); }
+    .service-item:nth-child(even) { padding-left: 3rem; }
+    .service-item:nth-child(odd):hover { padding-left: 1rem; }
+    .service-item:nth-child(even):hover { padding-left: 4rem; }
+    .service-num { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 4px; }
+    .service-name { font-size: 15px; font-weight: 400; margin-bottom: 6px; }
+    .service-desc { font-size: 13px; color: var(--text2); line-height: 1.6; max-width: 220px; font-weight: 300; }
+
+    /* ── PORTFOLIO NATIVO ── */
+    .video-featured {
+      position: relative; width: 100%; aspect-ratio: 16/9;
+      background: #000; overflow: hidden; margin-bottom: 2rem;
+    }
+    .video-featured video {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; border: none;
+    }
+    .video-caption {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      padding-top: 1.25rem; border-top: 0.5px solid var(--border);
+    }
+    .video-title { font-size: 15px; font-weight: 400; margin-bottom: 4px; }
+    .video-meta { font-family: var(--mono); font-size: 11px; color: var(--text3); letter-spacing: 0.1em; }
+    .btn-channel {
+      font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--accent); border: 0.5px solid rgba(200,184,154,0.3);
+      padding: 10px 20px; transition: border-color 0.2s, opacity 0.2s;
+      white-space: nowrap; display: inline-block;
+    }
+    .btn-channel:hover { border-color: var(--accent); opacity: 0.85; }
+
+    /* ── STATS ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
+    .stat { padding: 3rem 0; }
+    .stat:not(:last-child) { border-right: 0.5px solid var(--border); padding-right: 3rem; }
+    .stat:not(:first-child) { padding-left: 3rem; }
+    .stat-num { font-size: 52px; font-weight: 300; letter-spacing: -0.05em; line-height: 1; margin-bottom: 8px; }
+    .stat-num span { color: var(--accent); }
+    .stat-label { font-size: 13px; color: var(--text2); font-weight: 300; }
+
+    /* ── PROCESS ── */
+    .step {
+      display: flex; gap: 3rem; padding: 2rem 0;
+      border-top: 0.5px solid var(--border); align-items: flex-start;
+      transition: padding-left 0.3s var(--ease);
+    }
+    .step:last-child { border-bottom: 0.5px solid var(--border); }
+    .step:hover { padding-left: 1rem; }
+    .step-num { font-family: var(--mono); font-size: 11px; color: var(--text3); min-width: 28px; padding-top: 2px; }
+    .step-name { font-size: 16px; font-weight: 400; margin-bottom: 6px; }
+    .step-desc { font-size: 13px; color: var(--text2); line-height: 1.6; font-weight: 300; max-width: 500px; }
+
+    /* ── CONTACT & NEWSLETTER SECTION ── */
+    .contact-container {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 5rem;
+      align-items: start;
+    }
+    .contact-header {
+      margin-bottom: 3rem;
+    }
+    .contact-title {
+      font-size: clamp(32px, 4.5vw, 48px);
+      font-weight: 300;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+    .contact-sub {
+      font-size: 14px;
+      color: var(--text2);
+      font-weight: 300;
+    }
+    .aesthetic-form {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .form-group label {
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text2);
+    }
+    .aesthetic-input {
+      background: transparent;
+      border: none;
+      border-bottom: 0.5px solid var(--border2);
+      padding: 0.75rem 0;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      font-weight: 300;
+      outline: none;
+      transition: border-color 0.3s var(--ease);
+      cursor: none;
+    }
+    .aesthetic-input:focus {
+      border-color: var(--accent);
+    }
+    .aesthetic-input::placeholder {
+      color: var(--text3);
+    }
+    select.aesthetic-input {
+      color: var(--text2);
+      background-color: var(--bg);
+    }
+    select.aesthetic-input option {
+      background: var(--bg2);
+      color: var(--text);
+    }
+    .aesthetic-textarea {
+      resize: none;
+      min-height: 100px;
+    }
+    
+    /* ── CORRECCIÓN CRÍTICA DE VISIBILIDAD DE FORMSPREE ── */
+    /* Ocultamos los mensajes por defecto usando selectores normales de clase */
+    .form-feedback-success,
+    .form-feedback-error {
+      display: none !important;
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-feedback-success {
+      color: var(--accent);
+      border: 0.5px solid var(--accent);
+      background: rgba(200,184,154,0.05);
+    }
+
+    .form-feedback-error {
+      color: #e57373;
+      border: 0.5px solid rgba(229,115,115,0.3);
+      background: rgba(229,115,115,0.05);
+    }
+
+    /* Formspree inyecta la clase intermedia .fs-success o .fs-error únicamente en el bloque del formulario correspondiente */
+    .aesthetic-form.fs-success .form-feedback-success,
+    .newsletter-form.fs-success .form-feedback-success {
+      display: block !important;
+    }
+
+    .aesthetic-form.fs-error .form-feedback-error,
+    .newsletter-form.fs-error .form-feedback-error {
+      display: block !important;
+    }
+
+    /* Escondemos los inputs del formulario SOLO cuando ese formulario específico se ha enviado con éxito */
+    .aesthetic-form.fs-success .form-group,
+    .aesthetic-form.fs-success button,
+    .newsletter-form.fs-success .form-group,
+    .newsletter-form.fs-success button {
+      display: none !important;
+    }
+
+    .field-error {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: #e57373;
+      margin-top: 2px;
+    }
+
+    .newsletter-box {
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      padding: 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .newsletter-box h3 {
+      font-size: 18px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+    }
+    .newsletter-box p {
+      font-size: 13px;
+      color: var(--text2);
+      font-weight: 300;
+      line-height: 1.5;
+    }
+    .newsletter-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    /* ── FOOTER ── */
+    footer { border-top: 0.5px solid var(--border); padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center; }
+    .footer-logo { font-family: var(--mono); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text3); }
+    .footer-links { display: flex; gap: 2rem; }
+    .footer-links a { font-size: 12px; color: var(--text3); transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text2); }
+    .footer-copy { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+
+    /* ── SCROLL TOP ── */
+    .scroll-top {
+      position: fixed; bottom: 2rem; right: 2rem; z-index: 100;
+      width: 44px; height: 44px; background: var(--bg2);
+      border: 0.5px solid var(--border2); color: var(--text2);
+      font-family: var(--mono); font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s, color 0.2s, border-color 0.2s;
+    }
+    .scroll-top.visible { opacity: 1; pointer-events: all; }
+    .scroll-top:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ── FADE IN ── */
+    .fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.8s var(--ease), transform 0.8s var(--ease); }
+    .fade-in.visible { opacity: 1; transform: none; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      body { cursor: auto; }
+      #cursor { display: none; }
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .hero-content { left: 1.5rem; bottom: 3rem; }
+      section { padding: 4rem 1.5rem; }
+      .services-grid { grid-template-columns: 1fr; }
+      .service-item:nth-child(odd) { border-right: none; padding-right: 0; }
+      .service-item:nth-child(even) { padding-left: 0; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .stat:not(:last-child) { border-right: none; border-bottom: 0.5px solid var(--border); padding-right: 0; padding-bottom: 2rem; }
+      .stat:not(:first-child) { padding-left: 0; padding-top: 2rem; }
+      .step { gap: 1.5rem; }
+      .video-caption { flex-direction: column; gap: 1rem; align-items: flex-start; }
+      .contact-container { grid-template-columns: 1fr; gap: 3rem; }
+      .newsletter-box { padding: 2rem; }
+      footer { flex-direction: column; gap: 1.5rem; text-align: center; padding: 2rem 1.5rem; }
+      .footer-links { flex-wrap: wrap; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="preloader">
+    <div class="preloader-logo" id="preloaderLogo"></div>
+    <div class="preloader-bar" id="preloaderBar"></div>
+  </div>
+
+  <div id="cursor">
+    <div class="cursor-ring">
+      <div class="cursor-dot"></div>
+      <span class="cursor-label">Play</span>
+    </div>
+  </div>
+
+  <nav>
+    <div class="nav-logo">Aeschi Studio.</div>
+    <div class="nav-links">
+      <a href="#servicios">Servicios</a>
+      <a href="#proceso">Proceso</a>
+    </div>
+    <a href="#contacto" class="nav-cta">Contacto</a>
+  </nav>
+
+  <section class="hero" data-play>
+    <div class="hero-video-wrap">
+      <video autoplay loop muted playsinline>
+        <source src="con tag.mp4" type="video/mp4">
+        Tu navegador no soporta video HTML5.
+      </video>
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Estudio audiovisual — Berna, Suiza</p>
+      <h1>
+        Imágenes que<br>
+        mueven <em>a las personas.</em><br>
+        Y a las <span class="accent">marcas.</span>
+      </h1>
+      <p class="hero-sub">
+        Producción audiovisual para marcas y eventos que quieren ser recordados.
+        Sin relleno. Solo lo que importa.
+      </p>
+      <div class="btn-row">
+        <a href="https://grifotas.bandcamp.com/" target="_blank" rel="noopener" class="btn-primary">Ver nuestro trabajo</a>
+        <a href="#contacto" class="btn-ghost">Hablar del proyecto</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <span class="ticker-item"><span>Aeschi Studio</span> — Film de marca</span>
+      <span class="ticker-item"><span>Producción</span> — Berna, Suiza</span>
+      <span class="ticker-item"><span>Eventos</span> — Cobertura en vivo</span>
+      <span class="ticker-item"><span>Branded content</span> — Premium</span>
+      <span class="ticker-item"><span>Documental</span> — Corporativo</span>
+      <span class="ticker-item"><span>Contenido digital</span> — Plataformas</span>
+      <span class="ticker-item"><span>Aeschi Studio</span> — Film de marca</span>
+      <span class="ticker-item"><span>Producción</span> — Berna, Suiza</span>
+      <span class="ticker-item"><span>Eventos</span> — Cobertura en vivo</span>
+      <span class="ticker-item"><span>Branded content</span> — Premium</span>
+      <span class="ticker-item"><span>Documental</span> — Corporativo</span>
+      <span class="ticker-item"><span>Contenido digital</span> — Plataformas</span>
+    </div>
+  </div>
+
+  <section class="manifesto fade-in">
+    <p class="manifesto-text" id="manifesto">No hacemos vídeos. Construimos la forma en que el mundo percibe tu marca. Cada plano tiene una razón de existir. Nada es decorativo.</p>
+  </section>
+
+  <section id="servicios">
+    <p class="section-label">Servicios</p>
+    <div class="services-grid">
+      <div class="service-item fade-in">
+        <div>
+          <p class="service-name">Film de marca</p>
+          <p class="service-desc">Narrativa visual que comunica quién eres antes de que abras la boca.</p>
+        </div>
+        <span class="service-num">01</span>
+      </div>
+      <div class="service-item fade-in">
+        <div>
+          <p class="service-name">Cobertura de eventos</p>
+          <p class="service-desc">Captamos el momento exacto. Lo que ocurre una vez, se recuerda siempre.</p>
+        </div>
+        <span class="service-num">02</span>
+      </div>
+      <div class="service-item fade-in">
+        <div>
+          <p class="service-name">Contenido digital</p>
+          <p class="service-desc">Piezas para redes, campañas y plataformas. Diseñadas para detenerse.</p>
+        </div>
+        <span class="service-num">03</span>
+      </div>
+      <div class="service-item fade-in">
+        <div>
+          <p class="service-name">Documental corporativo</p>
+          <p class="service-desc">Tu historia, con la profundidad que merece. Sin guión forzado.</p>
+        </div>
+        <span class="service-num">04</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="trabajo" class="fade-in">
+    <p class="section-label">Trabajo</p>
+    <div class="video-featured" data-play>
+      <video controls playsinline>
+        <source src="1.mp4" type="video/mp4">
+        Tu navegador no soporta video HTML5.
+      </video>
+    </div>
+    <div class="video-caption">
+      <div>
+        <p class="video-title">Showreel — Aeschi Studio</p>
+        <p class="video-meta">Producción audiovisual · Berna, Suiza</p>
+      </div>
+      <a href="https://www.youtube.com/@laklaveh" target="_blank" rel="noopener" class="btn-channel">Ver canal completo →</a>
+    </div>
+  </section>
+
+  <section>
+    <div class="stats-grid">
+      <div class="stat fade-in">
+        <p class="stat-num">+120</p>
+        <p class="stat-label">Proyectos entregados</p>
+      </div>
+      <div class="stat fade-in">
+        <p class="stat-num">8<span> años</span></p>
+        <p class="stat-label">En producción premium</p>
+      </div>
+      <div class="stat fade-in">
+        <p class="stat-num">3</p>
+        <p class="stat-label">Continentes, un solo equipo</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="proceso">
+    <p class="section-label">Cómo trabajamos</p>
+    <div>
+      <div class="step fade-in">
+        <span class="step-num">01</span>
+        <div>
+          <p class="step-name">Escucha</p>
+          <p class="step-desc">Entendemos tu marca, tu audiencia y lo que quieres provocar. Sin plantillas, sin suposiciones.</p>
+        </div>
+      </div>
+      <div class="step fade-in">
+        <span class="step-num">02</span>
+        <div>
+          <p class="step-name">Concepto</p>
+          <p class="step-desc">Desarrollamos una idea que lo dice todo en los primeros tres segundos. La estrategia es parte del proceso.</p>
+        </div>
+      </div>
+      <div class="step fade-in">
+        <span class="step-num">03</span>
+        <div>
+          <p class="step-name">Producción</p>
+          <p class="step-desc">Rodamos con equipo de cine. Cada plano tiene una razón de existir. Nada es decorativo.</p>
+        </div>
+      </div>
+      <div class="step fade-in">
+        <span class="step-num">04</span>
+        <div>
+          <p class="step-name">Entrega</p>
+          <p class="step-desc">Postproducción, color y sonido propios. Archivos listos para cada plataforma, en el plazo acordado.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contacto" class="fade-in">
+    <p class="section-label">Siguiente Paso</p>
+    
+    <div class="contact-container">
+      <div class="contact-form-wrap">
+        <div class="contact-header">
+          <h2 class="contact-title">¿Tienes un proyecto<br>en mente?</h2>
+          <p class="contact-sub">Cuéntanoslo. Respondemos en menos de 24 horas.</p>
+        </div>
+
+        <form id="contact-form" class="aesthetic-form">
+          <div class="form-feedback-success">¡Gracias! Hemos recibido tus detalles correctamente. Nos pondremos en contacto contigo pronto.</div>
+          <div class="form-feedback-error">Hubo un error al enviar el formulario. Por favor, inténtalo de nuevo.</div>
+
+          <div class="form-group">
+            <label for="name">Nombre</label>
+            <input type="text" id="name" name="name" class="aesthetic-input" required placeholder="Tu nombre o empresa" data-fs-field>
+            <span data-fs-error="name" class="field-error"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" class="aesthetic-input" required placeholder="tu@correo.com" data-fs-field>
+            <span data-fs-error="email" class="field-error"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="service">¿Qué necesitas?</label>
+            <select id="service" name="service" class="aesthetic-input" required data-fs-field>
+              <option value="" disabled selected>Selecciona una opción</option>
+              <option value="film-marca">Film de marca</option>
+              <option value="eventos">Cobertura de eventos</option>
+              <option value="contenido-digital">Contenido digital premium</option>
+              <option value="documental">Documental corporativo</option>
+              <option value="otro">Otro proyecto audiovisual</option>
+            </select>
+            <span data-fs-error="service" class="field-error"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="message">El Proyecto</label>
+            <textarea id="message" name="message" class="aesthetic-input aesthetic-textarea" required placeholder="Cuéntanos ideas, objetivos o plazos..." data-fs-field></textarea>
+            <span data-fs-error="message" class="field-error"></span>
+          </div>
+
+          <div>
+            <button type="submit" class="btn-primary" data-fs-submit-btn>Empezar la conversación</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="newsletter-wrap">
+        <div class="newsletter-box">
+          <h3>Aeschi Journal</h3>
+          <p>Únete a nuestra lista. Compartimos procesos analógicos, tips de sonido, narrativa visual y actualizaciones de nuestros proyectos premium en Suiza.</p>
+          
+          <form id="newsletter-form" class="newsletter-form">
+            <div class="form-feedback-success">¡Te has suscrito con éxito al Aeschi Journal!</div>
+            <div class="form-feedback-error">Error al procesar la suscripción.</div>
+
+            <div class="form-group">
+              <label for="news-email">Email</label>
+              <input type="email" id="news-email" name="email" class="aesthetic-input" required placeholder="Tu mejor correo" data-fs-field>
+              <span data-fs-error="email" class="field-error"></span>
+            </div>
+            <button type="submit" class="btn-ghost" style="width: 100%; text-align: center;" data-fs-submit-btn>Suscribirme</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-logo">Aeschi Studio.</div>
+    <div class="footer-links">
+      <a href="https://www.youtube.com/@laklaveh" target="_blank" rel="noopener">YouTube</a>
+      <a href="https://grifotas.bandcamp.com/" target="_blank" rel="noopener">Bandcamp</a>
+      <a href="mailto:grifotasbass@gmail.com">grifotasbass@gmail.com</a>
+    </div>
+    <span class="footer-copy">© 2026 Aeschi Studio.</span>
+  </footer>
+
+  <button class="scroll-top" id="scrollTop" aria-label="Volver al inicio">↑</button>
+
+  <script>
+    window.formspree = window.formspree || function () { (formspree.q = formspree.q || []).push(arguments); };
+    formspree('initForm', { formElement: '#contact-form', formId: 'mpqnarev' });
+    formspree('initForm', { formElement: '#newsletter-form', formId: 'mpqnarev' });
+  </script>
+  <script src="https://unpkg.com/@formspree/ajax@1" defer></script>
+
+  <script>
+    /* ── PRELOADER ── */
+    const logoText = 'Aeschi Studio.';
+    const logoEl = document.getElementById('preloaderLogo');
+    const bar = document.getElementById('preloaderBar');
+    const preloader = document.getElementById('preloader');
+
+    document.body.style.overflow = 'hidden';
+
+    logoText.split('').forEach((ch, i) => {
+      const s = document.createElement('span');
+      s.textContent = ch === ' ' ? '\u00a0' : ch;
+      s.style.animationDelay = (i * 0.045) + 's';
+      logoEl.appendChild(s);
+    });
+
+    setTimeout(() => { bar.style.width = '100%'; }, 80);
+    setTimeout(() => {
+      preloader.classList.add('hidden');
+      document.body.style.overflow = '';
+    }, 1700);
+
+    /* ── CURSOR ── */
+    const cursor = document.getElementById('cursor');
+
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+    });
+
+    document.querySelectorAll('[data-play]').forEach(el => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('cursor-play'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-play'));
+    });
+
+    document.querySelectorAll('a, button, input, textarea, select').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        if (!document.body.classList.contains('cursor-play'))
+          document.body.classList.add('cursor-link');
+      });
+      el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-link'));
+    });
+
+    /* ── MANIFESTO WORD REVEAL ── */
+    const manifestoEl = document.getElementById('manifesto');
+    const accentWords = ['marca.'];
+    const rawText = manifestoEl.textContent.trim();
+    manifestoEl.innerHTML = '';
+
+    rawText.split(' ').forEach(word => {
+      const span = document.createElement('span');
+      span.classList.add('word');
+      if (accentWords.includes(word)) span.classList.add('accent-word');
+      span.textContent = word;
+      manifestoEl.appendChild(span);
+    });
+
+    const words = manifestoEl.querySelectorAll('.word');
+    const winH = window.innerHeight;
+
+    function updateManifesto() {
+      words.forEach(w => {
+        const top = w.getBoundingClientRect().top;
+        if (top < winH * 0.82) w.classList.add('lit');
+        else w.classList.remove('lit');
+      });
+    }
+
+    window.addEventListener('scroll', updateManifesto, { passive: true });
+    updateManifesto();
+
+    /* ── FADE IN ── */
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    /* ── SCROLL TOP ── */
+    const scrollBtn = document.getElementById('scrollTop');
+    window.addEventListener('scroll', () => {
+      scrollBtn.classList.toggle('visible', window.scrollY > 400);
+    }, { passive: true });
+    scrollBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  </script>
+
+</body>
+</html>
