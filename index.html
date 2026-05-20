@@ -618,9 +618,7 @@
 
         <form 
           id="contact-form" 
-          class="aesthetic-form"
-          action="https://hook.eu1.make.com/7noigebc4axb5wdjk1vk2am72qqetw7b"
-          method="POST">
+          class="aesthetic-form">
           <div class="form-feedback-success">¡Gracias! Hemos recibido tus detalles correctamente. Nos pondremos en contacto contigo pronto.</div>
           <div class="form-feedback-error">Hubo un error al enviar el formulario. Por favor, inténtalo de nuevo.</div>
 
@@ -695,88 +693,168 @@
   <button class="scroll-top" id="scrollTop" aria-label="Volver al inicio">↑</button>
 
   <script>
-    /* ── PRELOADER ── */
-    const logoText = 'Aeschi Studio.';
-    const logoEl = document.getElementById('preloaderLogo');
-    const bar = document.getElementById('preloaderBar');
-    const preloader = document.getElementById('preloader');
+  /* ── PRELOADER ── */
+  const logoText = 'Aeschi Studio.';
+  const logoEl = document.getElementById('preloaderLogo');
+  const bar = document.getElementById('preloaderBar');
+  const preloader = document.getElementById('preloader');
 
-    document.body.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
 
-    logoText.split('').forEach((ch, i) => {
-      const s = document.createElement('span');
-      s.textContent = ch === ' ' ? '\u00a0' : ch;
-      s.style.animationDelay = (i * 0.045) + 's';
-      logoEl.appendChild(s);
-    });
+  logoText.split('').forEach((ch, i) => {
+    const s = document.createElement('span');
+    s.textContent = ch === ' ' ? '\u00a0' : ch;
+    s.style.animationDelay = (i * 0.045) + 's';
+    logoEl.appendChild(s);
+  });
 
-    setTimeout(() => { bar.style.width = '100%'; }, 80);
-    setTimeout(() => {
-      preloader.classList.add('hidden');
-      document.body.style.overflow = '';
-    }, 1700);
+  setTimeout(() => {
+    bar.style.width = '100%';
+  }, 80);
 
-    /* ── AUTOPLAY VIDEO EN SCROLL ── */
-    const portfolioVideo = document.getElementById('portfolioVideo');
-    if (portfolioVideo) {
-      const videoObserver = new IntersectionObserver(entries => {
-        entries.forEach(e => {
-          if (e.isIntersecting) { portfolioVideo.play(); }
-          else { portfolioVideo.pause(); }
-        });
-      }, { threshold: 0.3 });
-      videoObserver.observe(portfolioVideo);
-    }
+  setTimeout(() => {
+    preloader.classList.add('hidden');
+    document.body.style.overflow = '';
+  }, 1700);
 
-    /* ── MANIFESTO WORD REVEAL ── */
-    const manifestoEl = document.getElementById('manifesto');
-    const accentWords = ['marca.'];
-    const rawText = manifestoEl.textContent.trim();
-    manifestoEl.innerHTML = '';
+  /* ── AUTOPLAY VIDEO EN SCROLL ── */
+  const portfolioVideo = document.getElementById('portfolioVideo');
 
-    rawText.split(' ').forEach(word => {
-      const span = document.createElement('span');
-      span.classList.add('word');
-      if (accentWords.includes(word)) span.classList.add('accent-word');
-      span.textContent = word;
-      manifestoEl.appendChild(span);
-    });
-
-    const words = manifestoEl.querySelectorAll('.word');
-    const winH = window.innerHeight;
-
-    function updateManifesto() {
-      words.forEach(w => {
-        const top = w.getBoundingClientRect().top;
-        if (top < winH * 0.82) w.classList.add('lit');
-        else w.classList.remove('lit');
-      });
-    }
-
-    window.addEventListener('scroll', updateManifesto, { passive: true });
-    updateManifesto();
-
-    /* ── FADE IN ── */
-    const observer = new IntersectionObserver(entries => {
+  if (portfolioVideo) {
+    const videoObserver = new IntersectionObserver(entries => {
       entries.forEach(e => {
         if (e.isIntersecting) {
-          e.target.classList.add('visible');
-          observer.unobserve(e.target);
+          portfolioVideo.play();
+        } else {
+          portfolioVideo.pause();
         }
       });
-    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    }, { threshold: 0.3 });
 
-    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    videoObserver.observe(portfolioVideo);
+  }
 
-    /* ── SCROLL TOP ── */
-    const scrollBtn = document.getElementById('scrollTop');
-    window.addEventListener('scroll', () => {
-      scrollBtn.classList.toggle('visible', window.scrollY > 400);
-    }, { passive: true });
-    scrollBtn.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+  /* ── MANIFESTO WORD REVEAL ── */
+  const manifestoEl = document.getElementById('manifesto');
+  const accentWords = ['marca.'];
+  const rawText = manifestoEl.textContent.trim();
+
+  manifestoEl.innerHTML = '';
+
+  rawText.split(' ').forEach(word => {
+    const span = document.createElement('span');
+
+    span.classList.add('word');
+
+    if (accentWords.includes(word)) {
+      span.classList.add('accent-word');
+    }
+
+    span.textContent = word;
+
+    manifestoEl.appendChild(span);
+  });
+
+  const words = manifestoEl.querySelectorAll('.word');
+  const winH = window.innerHeight;
+
+  function updateManifesto() {
+    words.forEach(w => {
+      const top = w.getBoundingClientRect().top;
+
+      if (top < winH * 0.82) {
+        w.classList.add('lit');
+      } else {
+        w.classList.remove('lit');
+      }
     });
-  </script>
+  }
 
+  window.addEventListener('scroll', updateManifesto, { passive: true });
+
+  updateManifesto();
+
+  /* ── FADE IN ── */
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, {
+    threshold: 0.08,
+    rootMargin: '0px 0px -40px 0px'
+  });
+
+  document.querySelectorAll('.fade-in').forEach(el => {
+    observer.observe(el);
+  });
+
+  /* ── SCROLL TOP ── */
+  const scrollBtn = document.getElementById('scrollTop');
+
+  window.addEventListener('scroll', () => {
+    scrollBtn.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
+
+  scrollBtn.addEventListener('click', () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
+
+  /* ── MAKE WEBHOOK FORM ── */
+  document.getElementById('contact-form').addEventListener('submit', async function(e) {
+
+    e.preventDefault();
+
+    const form = e.target;
+
+    const data = {
+      name: form.name.value,
+      email: form.email.value,
+      service: form.service.value,
+      message: form.message.value
+    };
+
+    try {
+
+      const response = await fetch(
+        'https://hook.eu1.make.com/7noigebc4axb5wdjk1vk2am72qqetw7b',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        }
+      );
+
+      if (response.ok) {
+
+        form.classList.remove('fs-error');
+        form.classList.add('fs-success');
+
+        form.reset();
+
+      } else {
+
+        form.classList.remove('fs-success');
+        form.classList.add('fs-error');
+
+      }
+
+    } catch(error) {
+
+      form.classList.remove('fs-success');
+      form.classList.add('fs-error');
+
+    }
+
+  });
+</script>
+  
 </body>
 </html>
